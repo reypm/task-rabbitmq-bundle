@@ -1,7 +1,5 @@
 # TaskRabbitMqBundle #
 
-## About ##
-
 ## Installation ##
 
 ### For Symfony Framework >= 3.0 ###
@@ -27,19 +25,19 @@ public function registerBundles()
 
 ## Usage ##
 
-#### Defines the task job information
+#### Defines the job data
 
 You can create a class to define the job data, or simply use array.
 
 ```php
 class SendEmailJob
 {
-	public $recipie;
-	public $attachment;
+    public $recipie;
+    public $attachment;
 }
 ```
 
-#### Defines the Worker and its service 
+#### Defines the Worker and register it as service 
 
 ```php
 class SendEmailWorker implements WorkerInterface
