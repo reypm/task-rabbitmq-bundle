@@ -1,0 +1,27 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        <span class="icon"></span>
+        <span class="sf-toolbar-status">
+            {% if collector.tasks|length %}
+                {{ collector.progress }}%
+            {% else %}
+                No Tasks
+            {% endif %}
+        </span>
+    {% endset %}
+
+    {% set text %}
+        {% for task in collector.tasks %}
+            <div class="sf-toolbar-info-piece">
+                <b title="{{ task.status }}">{{ task.name }}</b>
+                <span>{{ task.processedJobsCount }} / {{ task.jobsCount }} {{ task.progress }}%</span>
+            </div>
+        {% endfor %}
+    {% endset %}
+
+    {# the 'link' value set to 'false' means that this panel doesn't
+       show a section in the web profiler #}
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: false }) }}
+{% endblock %}

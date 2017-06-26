@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <route id="task_rabbit_mq_index" path="/tasks" methods="GET">
+        <default key="_controller">TaskRabbitMqBundle:Task:index</default>
+    </route>
+
+    <route id="task_rabbit_mq_pause" path="/task/{id}/pause" methods="POST">
+        <default key="_controller">TaskRabbitMqBundle:Task:pause</default>
+    </route>
+
+    <route id="task_rabbit_mq_cancel" path="/task/{id}/cancel" methods="POST">
+        <default key="_controller">TaskRabbitMqBundle:Task:cancel</default>
+    </route>
+
+    <route id="task_rabbit_mq_delete" path="/task/{id}/delete" methods="POST">
+        <default key="_controller">TaskRabbitMqBundle:Task:delete</default>
+    </route>
+
+</routes>
