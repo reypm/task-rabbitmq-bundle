@@ -83,20 +83,16 @@ services:
 $taskManager = $this->get('task_rabbit_mq.manager');
 $assigner = $this->get('task_rabbit_mq.assigner');
 
-$task = $taskManager->createTask();
-$task->setName('Send Monthly Report');
-$task->setDescription('Delivering monthly reports to customers.');
+$task = $taskManager->createTask()
+    ->setName('Delivering Monthly Reports')
+    ->addJobData(new SendEmailJob('john@gmail.com', 'path/to/build/report.pdf'))
+    ->addJobData(new SendEmailJob('jane@gmail.com', 'path/to/build/statements.docx'))
+    //...
+;
 
-$data[] = new SendEmailJob('john@gmail.com', 'path/to/build/report.pdf');
-$data[] = new SendEmailJob('jane@gmail.com', 'path/to/build/statements.docx');
-//...
-$task->setJobsData($data);
-
-// save task in database
 $taskManager->updateTask($task);
 
-// assign the task to the worker
-// the producer will publish all job messages to RabbitMQ Server.
+// this will send all jobs to RabbitMq server and the worker starts to execute each job.
 $assigner->assign($task, SendEmailWorker::class);
 ```
 
