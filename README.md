@@ -25,18 +25,6 @@ public function registerBundles()
 
 ## Usage ##
 
-#### Defines the job data
-
-You can create a class to define the job data, or simply use array.
-
-```php
-class SendEmailJob
-{
-    public $recipe;
-    public $attachment;
-}
-```
-
 #### Defines the Worker and register it as service 
 
 ```php
@@ -50,7 +38,7 @@ class SendEmailWorker implements WorkerInterface
     }
 
     /**
-     * @param SendEmailJob $job
+     * @param array $job
      *
      * @return mixed|void
      */
@@ -58,9 +46,9 @@ class SendEmailWorker implements WorkerInterface
     {
         $message = (new \Swift_Message('Hello Email'))
             ->setFrom('me@example.com')
-            ->setTo($job->getRecipe())
+            ->setTo($job['email'])
             ->setBody('...', 'text/html')
-            ->attach(Swift_Attachment::fromPath($job->getAttachment()))
+            ->attach(Swift_Attachment::fromPath($job['attachment']))
         ;
         
         $this->mailer->send($message);
@@ -85,8 +73,8 @@ $assigner = $this->get('task_rabbit_mq.assigner');
 
 $task = $taskManager->createTask()
     ->setName('Delivering Monthly Reports')
-    ->addJobData(new SendEmailJob('john@gmail.com', 'path/to/build/report.pdf'))
-    ->addJobData(new SendEmailJob('jane@gmail.com', 'path/to/build/statements.docx'))
+    ->addJobData(array('email' => 'john@gmail.com', 'attachment' => 'path/to/report.pdf'))
+    ->addJobData(array('email' => 'jane@gmail.com', 'attachment' => 'path/to/statements.docx'))
     //...
 ;
 
