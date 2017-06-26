@@ -32,7 +32,7 @@ You can create a class to define the job data, or simply use array.
 ```php
 class SendEmailJob
 {
-    public $recipie;
+    public $recipe;
     public $attachment;
 }
 ```
@@ -58,7 +58,7 @@ class SendEmailWorker implements WorkerInterface
     {
         $message = (new \Swift_Message('Hello Email'))
             ->setFrom('me@example.com')
-            ->setTo($job->getRecipie())
+            ->setTo($job->getRecipe())
             ->setBody('...', 'text/html')
             ->attach(Swift_Attachment::fromPath($job->getAttachment()))
         ;
