@@ -65,7 +65,7 @@ services:
             - { name: task_rabbitmq.worker }
 ```
 
-#### Creates the Task/Jobs and assign it to the Worker
+#### Assigning task to the Worker
 
 ```php
 $taskManager = $this->get('task_rabbit_mq.manager');
