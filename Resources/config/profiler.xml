@@ -5,9 +5,9 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="task_rabbit_mq.data_collector" class="TaskRabbitMqBundle\DataCollector\TaskCollector" public="false">
+        <service id="task_rabbit_mq.data_collector" class="Yceruto\TaskRabbitMqBundle\DataCollector\TaskCollector" public="false">
             <argument type="service" id="task_rabbit_mq.manager" />
-            <tag name="data_collector" template="@TaskRabbitMq/Collector/collector.html.twig" id="task_rabbit_mq" />
+            <tag name="data_collector" template="@YcerutoTaskRabbitMq/Collector/collector.html.twig" id="task_rabbit_mq" />
         </service>
     </services>
 </container>

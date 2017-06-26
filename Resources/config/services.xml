@@ -5,32 +5,32 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <services>
-        <service id="task_rabbit_mq.worker_container" class="TaskRabbitMqBundle\Worker\WorkerContainer" public="false" />
+        <service id="task_rabbit_mq.worker_container" class="Yceruto\TaskRabbitMqBundle\Worker\WorkerContainer" public="false" />
 
         <service id="task_rabbit_mq.object_manager" class="Doctrine\Common\Persistence\ObjectManager" public="false">
-            <factory class="doctrine" method="getManager" />
+            <factory service="doctrine" method="getManager" />
             <argument>%task_rabbit_mq.model_manager_name%</argument>
         </service>
 
-        <service id="task_rabbit_mq.management" class="TaskRabbitMqBundle\RabbitMq\Management" public="false">
+        <service id="task_rabbit_mq.management" class="Yceruto\TaskRabbitMqBundle\RabbitMq\Management" public="false">
             <argument type="string">%task_rabbit_mq.management.url%</argument>
             <argument type="string">%task_rabbit_mq.management.user%</argument>
             <argument type="string">%task_rabbit_mq.management.password%</argument>
             <argument type="string">%task_rabbit_mq.management.vhost%</argument>
         </service>
 
-        <service id="task_rabbit_mq.manager.default" class="TaskRabbitMqBundle\Doctrine\TaskManager" public="false">
+        <service id="task_rabbit_mq.manager.default" class="Yceruto\TaskRabbitMqBundle\Doctrine\TaskManager" public="false">
             <argument type="service" id="task_rabbit_mq.object_manager" />
             <argument type="string">%task_rabbit_mq.task_class%</argument>
         </service>
 
-        <service id="task_rabbit_mq.assigner.default" class="TaskRabbitMqBundle\Assigner\TaskAssigner" public="false" lazy="true">
+        <service id="task_rabbit_mq.assigner.default" class="Yceruto\TaskRabbitMqBundle\Assigner\TaskAssigner" public="false" lazy="true">
             <argument type="service" id="task_rabbit_mq.worker_container" />
             <argument type="service" id="task_rabbit_mq.management" />
             <argument type="service" id="task_rabbit_mq.producer" />
         </service>
 
-        <service id="task_rabbit_mq.consumer.default" class="TaskRabbitMqBundle\Consumer\TaskConsumer" public="false">
+        <service id="task_rabbit_mq.consumer.default" class="Yceruto\TaskRabbitMqBundle\Consumer\TaskConsumer" public="false">
             <argument type="service" id="task_rabbit_mq.manager" />
             <argument type="service" id="task_rabbit_mq.worker_container" />
             <argument type="service" id="logger" on-invalid="null" />
