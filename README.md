@@ -70,7 +70,7 @@ class SendEmailWorker implements WorkerInterface
 
 ```yaml
 services:
-    app.worker.send_email:
+    AppBundle\Job\SendEmailWorker:
         class: AppBundle\Job\SendEmailWorker
         arguments: ['@mailer']
         tags:
