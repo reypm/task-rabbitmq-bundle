@@ -1,27 +1,24 @@
 {% extends '@WebProfiler/Profiler/layout.html.twig' %}
 
 {% block toolbar %}
-    {% set icon %}
-        <span class="icon"></span>
-        <span class="sf-toolbar-status">
-            {% if collector.tasks|length %}
-                {{ collector.progress }}%
-            {% else %}
-                No Tasks
-            {% endif %}
-        </span>
-    {% endset %}
+    {% if collector.tasks|length > 0 %}
+        {% set icon %}
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 50 50" enable-background="new 0 0 24 24" xml:space="preserve">
+                <path fill="#AAAAAA" d="M 2.8125 6 A 1.0001 1.0001 0 0 0 2 7 L 2 15 A 1.0001 1.0001 0 0 0 3 16 L 47 16 A 1.0001 1.0001 0 0 0 48 15 L 48 7 A 1.0001 1.0001 0 0 0 47 6 L 3 6 A 1.0001 1.0001 0 0 0 2.90625 6 A 1.0001 1.0001 0 0 0 2.8125 6 z M 12 8 L 46 8 L 46 14 L 12 14 L 12 8 z M 2.8125 20 A 1.0001 1.0001 0 0 0 2 21 L 2 29 A 1.0001 1.0001 0 0 0 3 30 L 47 30 A 1.0001 1.0001 0 0 0 48 29 L 48 21 A 1.0001 1.0001 0 0 0 47 20 L 3 20 A 1.0001 1.0001 0 0 0 2.90625 20 A 1.0001 1.0001 0 0 0 2.8125 20 z M 36 22 L 46 22 L 46 28 L 36 28 L 36 22 z M 2.8125 34 A 1.0001 1.0001 0 0 0 2 35 L 2 43 A 1.0001 1.0001 0 0 0 3 44 L 47 44 A 1.0001 1.0001 0 0 0 48 43 L 48 35 A 1.0001 1.0001 0 0 0 47 34 L 3 34 A 1.0001 1.0001 0 0 0 2.90625 34 A 1.0001 1.0001 0 0 0 2.8125 34 z M 24 36 L 46 36 L 46 42 L 24 42 L 24 36 z" overflow="visible" font-family="Sans"></path>
+            </svg>
+            <span class="sf-toolbar-value">{{ collector.progress }}</span>
+            <span class="sf-toolbar-label">%</span>
+        {% endset %}
 
-    {% set text %}
-        {% for task in collector.tasks %}
-            <div class="sf-toolbar-info-piece">
-                <b title="{{ task.status }}">{{ task.name }}</b>
-                <span>{{ task.processedJobsCount }} / {{ task.jobsCount }} {{ task.progress }}%</span>
-            </div>
-        {% endfor %}
-    {% endset %}
+        {% set text %}
+            {% for task in collector.tasks %}
+                <div class="sf-toolbar-info-piece">
+                    <b title="{{ task.status }}">{{ task.name }}</b>
+                    <span>{{ task.processedJobsCount }} / {{ task.jobsCount }} {{ task.progress }}%</span>
+                </div>
+            {% endfor %}
+        {% endset %}
 
-    {# the 'link' value set to 'false' means that this panel doesn't
-       show a section in the web profiler #}
-    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: false }) }}
+        {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: false }) }}
+    {% endif %}
 {% endblock %}
