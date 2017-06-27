@@ -1,5 +1,18 @@
 ## Configuration
 
+```yaml
+old_sound_rabbit_mq:
+    connections:
+        default:
+            url: '%env(RABBITMQ_URL)%'
+            lazy: true
+```
+
+```yaml
+task_rabbit_mq:
+    task_class: AppBundle\Entity\Task
+```
+
 ```php
 <?php
 // src/AppBundle/Entity/Task.php
@@ -28,19 +41,6 @@ class Task extends BaseTask
         // your own logic
     }
 }
-```
-
-```yaml
-old_sound_rabbit_mq:
-    connections:
-        default:
-            url: '%env(RABBITMQ_URL)%'
-            lazy: true
-```
-
-```yaml
-task_rabbit_mq:
-    task_class: AppBundle\Entity\Task
 ```
 
 ## Defines the Worker and register it as service 
