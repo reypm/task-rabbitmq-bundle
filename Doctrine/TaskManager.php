@@ -67,6 +67,12 @@ class TaskManager implements TaskManagerInterface
     public function updateTask(TaskInterface $task)
     {
         if (null === $task->getId()) {
+            if (0 === $task->getJobsCount()) {
+                // avoid create task without jobs
+                // allowing to execute the task at least one time
+                $task->addJobData(null);
+            }
+
             $this->objectManager->persist($task);
         }
 
