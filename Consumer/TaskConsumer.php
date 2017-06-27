@@ -36,7 +36,6 @@ class TaskConsumer implements ConsumerInterface
      */
     public function execute(AMQPMessage $msg)
     {
-        /** @var Job $job */
         $job = @unserialize($msg->body);
 
         if (!$job instanceof Job) {
