@@ -14,7 +14,7 @@
             {% for task in collector.tasks %}
                 <div class="sf-toolbar-info-piece">
                     <b title="{{ task.status }}">{{ task.name }}</b>
-                    <span>{{ task.processedJobsCount }} / {{ task.jobsCount }} - {{ '%d'|format(task.progress) }}%</span>
+                    <span>{{ '%d'|format(task.progress) }}%</span>
                 </div>
             {% endfor %}
         {% endset %}
