@@ -67,17 +67,31 @@ class TaskRabbitMqExtension extends Extension implements PrependExtensionInterfa
     public function prepend(ContainerBuilder $container)
     {
         if ($container->hasExtension('old_sound_rabbit_mq')) {
-            $config = $container->getExtensionConfig('old_sound_rabbit_mq')[0];
-            $config['producers']['tasks']['exchange_options']['name'] = 'tasks';
-            $config['producers']['tasks']['exchange_options']['type'] = 'direct';
-            $config['consumers']['tasks']['exchange_options']['name'] = 'tasks';
-            $config['consumers']['tasks']['exchange_options']['type'] = 'direct';
-            $config['consumers']['tasks']['queue_options']['name'] = 'tasks';
-            $config['consumers']['tasks']['queue_options']['routing_keys'] = ['tasks'];
-            $config['consumers']['tasks']['callback'] = 'task_rabbit_mq.consumer';
-            $container->prependExtensionConfig('old_sound_rabbit_mq', $config);
+            $oldSoundConfig = $container->getExtensionConfig('old_sound_rabbit_mq');
+            if (!$oldSoundConfig = current($oldSoundConfig)) {
+                return;
+            }
 
-            $container->prependExtensionConfig('task_rabbit_mq', ['producer' => 'old_sound_rabbit_mq.tasks_producer']);
+            $oldSoundConfig['producers']['tasks']['exchange_options']['name'] = 'tasks';
+            $oldSoundConfig['producers']['tasks']['exchange_options']['type'] = 'direct';
+            $oldSoundConfig['consumers']['tasks']['exchange_options']['name'] = 'tasks';
+            $oldSoundConfig['consumers']['tasks']['exchange_options']['type'] = 'direct';
+            $oldSoundConfig['consumers']['tasks']['queue_options']['name'] = 'tasks';
+            $oldSoundConfig['consumers']['tasks']['queue_options']['routing_keys'] = ['tasks'];
+            $oldSoundConfig['consumers']['tasks']['callback'] = 'task_rabbit_mq.consumer';
+            $container->prependExtensionConfig('old_sound_rabbit_mq', $oldSoundConfig);
+
+            $config['producer'] = 'old_sound_rabbit_mq.tasks_producer';
+            if ($oldSoundConfig['connections']['default']['user']) {
+                $config['management']['user'] = $oldSoundConfig['connections']['default']['user'];
+            }
+            if ($oldSoundConfig['connections']['default']['password']) {
+                $config['management']['password'] = $oldSoundConfig['connections']['default']['password'];
+            }
+            if ($oldSoundConfig['connections']['default']['vhost']) {
+                $config['management']['vhost'] = $oldSoundConfig['connections']['default']['vhost'];
+            }
+            $container->prependExtensionConfig('task_rabbit_mq', $config);
         }
     }
 }
