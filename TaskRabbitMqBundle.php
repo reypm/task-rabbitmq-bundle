@@ -22,12 +22,10 @@ class TaskRabbitMqBundle extends Bundle
 
     public function build(ContainerBuilder $container)
     {
-        $container->addCompilerPass(new AddWorkerCompilerPass());
         $mappings = array(
             realpath(__DIR__.'/Resources/config/doctrine-mapping') => 'Yceruto\TaskRabbitMqBundle\Model',
         );
-        if (class_exists('Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\DoctrineOrmMappingsPass')) {
-            $container->addCompilerPass(DoctrineOrmMappingsPass::createXmlMappingDriver($mappings, array('task_rabbit_mq.model_manager_name')));
-        }
+        $container->addCompilerPass(DoctrineOrmMappingsPass::createXmlMappingDriver($mappings, array('task_rabbit_mq.model_manager_name')));
+        $container->addCompilerPass(new AddWorkerCompilerPass());
     }
 }
