@@ -69,7 +69,7 @@ services:
 
 ```php
 $taskManager = $this->get('task_rabbit_mq.manager');
-$assigner = $this->get('task_rabbit_mq.assigner');
+$taskAssigner = $this->get('task_rabbit_mq.assigner');
 
 $task = $taskManager->createTask()
     ->setName('Delivering Monthly Reports')
@@ -81,7 +81,7 @@ $task = $taskManager->createTask()
 $taskManager->updateTask($task);
 
 // this will send all jobs to RabbitMq server and the worker starts to execute each job.
-$assigner->assign($task, SendEmailWorker::class);
+$taskAssigner->assign($task, SendEmailWorker::class);
 ```
 
 ## License ##

@@ -243,7 +243,7 @@ abstract class Task implements TaskInterface
     public function getProgress()
     {
         return $this->jobsCount > 0
-            ? ($this->jobsProcessedCount / $this->jobsCount) * 100
+            ? $this->jobsProcessedCount / $this->jobsCount * 100
             : 0;
     }
 }
