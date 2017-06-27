@@ -50,6 +50,7 @@ abstract class Task implements TaskInterface
 
     public function __construct()
     {
+        $this->status = TaskInterface::ON_HOLD;
         $this->jobsCount = 0;
         $this->jobsProcessedCount = 0;
     }
