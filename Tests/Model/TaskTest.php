@@ -29,9 +29,6 @@ class TaskTest extends TestCase
     public function testStatus()
     {
         $task = $this->getTask();
-        $this->assertNull($task->getStatus());
-
-        $task->setStatusOnHold();
         $this->assertSame(TaskInterface::ON_HOLD, $task->getStatus());
         $this->assertTrue($task->isStatusOnHold());
 

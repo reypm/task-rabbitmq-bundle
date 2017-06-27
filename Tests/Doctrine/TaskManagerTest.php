@@ -66,7 +66,7 @@ class TaskManagerTest extends TestCase
         $task = $this->taskManager->createTask();
 
         $this->assertInstanceOf(self::TASK_CLASS, $task);
-        $this->assertNull($task->getStatus());
+        $this->assertTrue($task->isStatusOnHold());
     }
 
     public function testDeleteTask()
