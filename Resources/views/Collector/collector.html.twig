@@ -14,7 +14,7 @@
             {% for task in collector.tasks %}
                 <div class="sf-toolbar-info-piece">
                     {% set status = ['On Hold', 'Running', 'Paused', 'Completed', 'Cancelled'] %}
-                    {% set statusClass = ['', 'sf-toolbar-status-green', '', 'sf-toolbar-status-green', 'sf-toolbar-status-red'] %}
+                    {% set statusClass = ['', 'sf-toolbar-status-green', 'sf-toolbar-status-yellow', 'sf-toolbar-status-green', 'sf-toolbar-status-red'] %}
                     <b title="{{ status[task.status] }}">{{ task.name }}</b>
                     <span class="sf-toolbar-status {{ statusClass[task.status] }}" title="{{ status[task.status] }}">{{ '%d'|format(task.progress) }}%</span>
                 </div>
