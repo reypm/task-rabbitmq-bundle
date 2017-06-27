@@ -14,9 +14,10 @@ namespace Yceruto\TaskRabbitMqBundle\DependencyInjection;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
-class TaskRabbitMqExtension extends Extension
+class TaskRabbitMqExtension extends Extension implements PrependExtensionInterface
 {
     /**
      * {@inheritdoc}
@@ -58,5 +59,25 @@ class TaskRabbitMqExtension extends Extension
         $container->setParameter('task_rabbit_mq.load_balancer.consumer_type', $config['load_balancer']['consumer_type']);
         $container->setParameter('task_rabbit_mq.load_balancer.consumer_name', $config['load_balancer']['consumer_name']);
         $container->setParameter('task_rabbit_mq.load_balancer.delay', $config['load_balancer']['delay']);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function prepend(ContainerBuilder $container)
+    {
+        if ($container->hasExtension('old_sound_rabbit_mq')) {
+            $config = $container->getExtensionConfig('old_sound_rabbit_mq')[0];
+            $config['producers']['tasks']['exchange_options']['name'] = 'tasks';
+            $config['producers']['tasks']['exchange_options']['type'] = 'direct';
+            $config['consumers']['tasks']['exchange_options']['name'] = 'tasks';
+            $config['consumers']['tasks']['exchange_options']['type'] = 'direct';
+            $config['consumers']['tasks']['queue_options']['name'] = 'tasks';
+            $config['consumers']['tasks']['queue_options']['routing_keys'] = ['tasks'];
+            $config['consumers']['tasks']['callback'] = 'task_rabbit_mq.consumer';
+            $container->prependExtensionConfig('old_sound_rabbit_mq', $config);
+
+            $container->prependExtensionConfig('task_rabbit_mq', ['producer' => 'old_sound_rabbit_mq.tasks_producer']);
+        }
     }
 }
