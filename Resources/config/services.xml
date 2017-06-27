@@ -12,7 +12,7 @@
             <argument>%task_rabbit_mq.model_manager_name%</argument>
         </service>
 
-        <service id="task_rabbit_mq.management" class="Yceruto\TaskRabbitMqBundle\RabbitMq\Management" public="false">
+        <service id="task_rabbit_mq.management" class="Yceruto\TaskRabbitMqBundle\RabbitMq\Management\Management" public="false">
             <argument type="string">%task_rabbit_mq.management.url%</argument>
             <argument type="string">%task_rabbit_mq.management.user%</argument>
             <argument type="string">%task_rabbit_mq.management.password%</argument>
