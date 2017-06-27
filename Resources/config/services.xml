@@ -13,10 +13,10 @@
         </service>
 
         <service id="task_rabbit_mq.management" class="Yceruto\TaskRabbitMqBundle\RabbitMq\Management\Management" public="false">
-            <argument type="string">%task_rabbit_mq.management.url%</argument>
-            <argument type="string">%task_rabbit_mq.management.user%</argument>
-            <argument type="string">%task_rabbit_mq.management.password%</argument>
-            <argument type="string">%task_rabbit_mq.management.vhost%</argument>
+            <argument /> <!-- url -->
+            <argument /> <!-- user -->
+            <argument /> <!-- password -->
+            <argument /> <!-- vhost -->
         </service>
 
         <service id="task_rabbit_mq.manager.default" class="Yceruto\TaskRabbitMqBundle\Doctrine\TaskManager" public="false">

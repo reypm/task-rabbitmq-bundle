@@ -43,10 +43,11 @@ class TaskRabbitMqExtension extends Extension
         $container->setParameter('task_rabbit_mq.model_manager_name', $config['doctrine']['model_manager_name']);
 
         // Load RabbitMq Management configuration
-        $container->setParameter('task_rabbit_mq.management.url', $config['management']['url']);
-        $container->setParameter('task_rabbit_mq.management.user', $config['management']['user']);
-        $container->setParameter('task_rabbit_mq.management.password', $config['management']['password']);
-        $container->setParameter('task_rabbit_mq.management.vhost', $config['management']['vhost']);
+        $definition = $container->getDefinition('task_rabbit_mq.management');
+        $definition->replaceArgument(0, $config['management']['url']);
+        $definition->replaceArgument(1, $config['management']['user']);
+        $definition->replaceArgument(2, $config['management']['password']);
+        $definition->replaceArgument(3, $config['management']['vhost']);
 
         // Load Service configuration
         $container->setAlias('task_rabbit_mq.manager', $config['service']['task_manager']);

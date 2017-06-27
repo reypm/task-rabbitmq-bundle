@@ -95,20 +95,22 @@ class TaskRabbitMqExtensionTest extends TestCase
     {
         $this->createEmptyConfiguration();
 
-        $this->assertParameter('http://127.0.0.1:15672', 'task_rabbit_mq.management.url');
-        $this->assertParameter('guest', 'task_rabbit_mq.management.user');
-        $this->assertParameter('guest', 'task_rabbit_mq.management.password');
-        $this->assertParameter('/', 'task_rabbit_mq.management.vhost');
+        $definition = $this->container->getDefinition('task_rabbit_mq.management');
+        $this->assertSame('http://127.0.0.1:15672', $definition->getArgument(0));
+        $this->assertSame('guest', $definition->getArgument(1));
+        $this->assertSame('guest', $definition->getArgument(2));
+        $this->assertSame('/', $definition->getArgument(3));
     }
 
     public function testTaskLoadManagement()
     {
         $this->createFullConfiguration();
 
-        $this->assertParameter('http://127.0.0.1:12372', 'task_rabbit_mq.management.url');
-        $this->assertParameter('symfony', 'task_rabbit_mq.management.user');
-        $this->assertParameter('p4ss', 'task_rabbit_mq.management.password');
-        $this->assertParameter('/dev', 'task_rabbit_mq.management.vhost');
+        $definition = $this->container->getDefinition('task_rabbit_mq.management');
+        $this->assertSame('http://127.0.0.1:12372', $definition->getArgument(0));
+        $this->assertSame('symfony', $definition->getArgument(1));
+        $this->assertSame('p4ss', $definition->getArgument(2));
+        $this->assertSame('/dev', $definition->getArgument(3));
     }
 
     public function testTaskLoadServiceWithDefaults()
