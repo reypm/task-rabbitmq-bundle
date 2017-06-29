@@ -12,13 +12,6 @@
             <argument>%task_rabbit_mq.model_manager_name%</argument>
         </service>
 
-        <service id="task_rabbit_mq.management" class="Yceruto\TaskRabbitMqBundle\RabbitMq\Management\Management" public="false">
-            <argument /> <!-- url -->
-            <argument /> <!-- user -->
-            <argument /> <!-- password -->
-            <argument /> <!-- vhost -->
-        </service>
-
         <service id="task_rabbit_mq.manager.default" class="Yceruto\TaskRabbitMqBundle\Doctrine\TaskManager" public="false">
             <argument type="service" id="task_rabbit_mq.object_manager" />
             <argument type="string">%task_rabbit_mq.task_class%</argument>
@@ -31,8 +24,8 @@
 
         <service id="task_rabbit_mq.assigner.default" class="Yceruto\TaskRabbitMqBundle\Assigner\TaskAssigner" public="false" lazy="true">
             <argument type="service" id="task_rabbit_mq.worker_container" />
-            <argument type="service" id="task_rabbit_mq.management" />
             <argument type="service" id="task_rabbit_mq.producer" />
+            <argument type="collection" /> <!-- routing_keys -->
         </service>
 
         <service id="task_rabbit_mq.consumer.default" class="Yceruto\TaskRabbitMqBundle\Consumer\TaskConsumer" public="false">

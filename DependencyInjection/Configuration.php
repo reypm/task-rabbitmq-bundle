@@ -42,7 +42,7 @@ class Configuration implements ConfigurationInterface
         ;
 
         $this->addDoctrineSection($rootNode);
-        $this->addManagementSection($rootNode);
+        $this->addRabbitMqSection($rootNode);
         $this->addServiceSection($rootNode);
         $this->addLoadBalancerSection($rootNode);
 
@@ -65,18 +65,18 @@ class Configuration implements ConfigurationInterface
         ;
     }
 
-    private function addManagementSection(ArrayNodeDefinition $node)
+    private function addRabbitMqSection(ArrayNodeDefinition $node)
     {
         $node
             ->addDefaultsIfNotSet()
             ->children()
-                ->arrayNode('management')
+                ->arrayNode('rabbit_mq')
                     ->addDefaultsIfNotSet()
-                        ->children()
-                            ->scalarNode('url')->defaultValue('http://127.0.0.1:15672')->end()
-                            ->scalarNode('user')->defaultValue('guest')->end()
-                            ->scalarNode('password')->defaultValue('guest')->end()
-                            ->scalarNode('vhost')->defaultValue('/')->end()
+                    ->children()
+                        ->scalarNode('url')->defaultValue('')->end()
+                        ->arrayNode('routing_keys')
+                            ->beforeNormalization()->ifString()->then(function ($v) { return array($v); })->end()
+                            ->prototype('scalar')->end()
                         ->end()
                     ->end()
                 ->end()

@@ -36,24 +36,19 @@ class TaskRabbitMqExtension extends Extension implements PrependExtensionInterfa
 
         // Load Main Configuration
         $container->setParameter('task_rabbit_mq.task_class', $config['task_class']);
-        $container->setParameter('task_rabbit_mq.debug', $config['debug']);
-
         $container->setAlias('task_rabbit_mq.producer', $config['producer']);
 
         // Load Doctrine configuration
         $container->setParameter('task_rabbit_mq.model_manager_name', $config['doctrine']['model_manager_name']);
 
-        // Load RabbitMq Management configuration
-        $definition = $container->getDefinition('task_rabbit_mq.management');
-        $definition->replaceArgument(0, $config['management']['url']);
-        $definition->replaceArgument(1, $config['management']['user']);
-        $definition->replaceArgument(2, $config['management']['password']);
-        $definition->replaceArgument(3, $config['management']['vhost']);
-
         // Load Service configuration
         $container->setAlias('task_rabbit_mq.manager', $config['service']['task_manager']);
         $container->setAlias('task_rabbit_mq.assigner', $config['service']['task_assigner']);
         $container->setAlias('task_rabbit_mq.consumer', $config['service']['task_consumer']);
+
+        // Load RabbitMq configuration
+        $definition = $container->findDefinition('task_rabbit_mq.assigner');
+        $definition->replaceArgument(2, $config['rabbit_mq']['routing_keys']);
 
         // Load Load-Balancer Configuration
         $container->setParameter('task_rabbit_mq.load_balancer.consumer_type', $config['load_balancer']['consumer_type']);
@@ -67,20 +62,19 @@ class TaskRabbitMqExtension extends Extension implements PrependExtensionInterfa
     public function prepend(ContainerBuilder $container)
     {
         if ($container->hasExtension('old_sound_rabbit_mq')) {
+            // old_sound_rabbit_mq
             $oldSoundConfig = $container->getExtensionConfig('old_sound_rabbit_mq');
-            if (!$oldSoundConfig = current($oldSoundConfig)) {
-                return;
-            }
+            $oldSoundConfig = current($oldSoundConfig);
 
             $oldSoundConfig['producers']['tasks']['exchange_options']['name'] = 'tasks';
             $oldSoundConfig['producers']['tasks']['exchange_options']['type'] = 'direct';
             $oldSoundConfig['consumers']['tasks']['exchange_options']['name'] = 'tasks';
             $oldSoundConfig['consumers']['tasks']['exchange_options']['type'] = 'direct';
             $oldSoundConfig['consumers']['tasks']['queue_options']['name'] = 'tasks';
-            $oldSoundConfig['consumers']['tasks']['queue_options']['routing_keys'] = ['tasks'];
             $oldSoundConfig['consumers']['tasks']['callback'] = 'task_rabbit_mq.consumer';
             $container->prependExtensionConfig('old_sound_rabbit_mq', $oldSoundConfig);
 
+            // task_rabbit_mq
             $config['producer'] = 'old_sound_rabbit_mq.tasks_producer';
             if ($oldSoundConfig['connections']['default']['user']) {
                 $config['management']['user'] = $oldSoundConfig['connections']['default']['user'];

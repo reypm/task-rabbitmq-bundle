@@ -14,7 +14,6 @@ namespace Yceruto\TaskRabbitMqBundle\Assigner;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use Yceruto\TaskRabbitMqBundle\Model\Job;
 use Yceruto\TaskRabbitMqBundle\Model\TaskInterface;
-use Yceruto\TaskRabbitMqBundle\RabbitMq\Management\Management;
 use Yceruto\TaskRabbitMqBundle\Worker\WorkerAwareInterface;
 use Yceruto\TaskRabbitMqBundle\Worker\WorkerContainer;
 use Yceruto\TaskRabbitMqBundle\Worker\WorkerInterface;
@@ -22,14 +21,15 @@ use Yceruto\TaskRabbitMqBundle\Worker\WorkerInterface;
 class TaskAssigner
 {
     private $workerContainer;
-    private $management;
     private $producer;
+    private $cycle;
 
-    public function __construct(WorkerContainer $workerContainer, Management $management, ProducerInterface $producer)
+    public function __construct(WorkerContainer $workerContainer, ProducerInterface $producer, array $routingKeys = array())
     {
         $this->workerContainer = $workerContainer;
-        $this->management = $management;
         $this->producer = $producer;
+        $this->cycle = new \InfiniteIterator(new \ArrayIterator($routingKeys));
+        $this->cycle->rewind();
     }
 
     /**
@@ -56,10 +56,6 @@ class TaskAssigner
             throw new \InvalidArgumentException('Expected a Worker instance or its service id.');
         }
 
-        if (false === $queue = $this->management->getShortestQueueName()) {
-            throw new \InvalidArgumentException('Queue not found. Make sure to configure at least one queue.');
-        }
-
         $i = 0;
         foreach ($task->getJobsData() as $data) {
             $job = new Job();
@@ -73,8 +69,16 @@ class TaskAssigner
                 $job->setWorkerServiceId($defaultWorkerServiceId);
             }
 
-            // In this case the routing_key === queue name (by configuration)
-            $this->producer->publish(serialize($job), $queue);
+            $this->producer->publish(serialize($job), $this->getRoutingKey());
         }
+    }
+
+    public function getRoutingKey()
+    {
+        $routingKey = $this->cycle->current() ?: '';
+
+        $this->cycle->next();
+
+        return $routingKey;
     }
 }

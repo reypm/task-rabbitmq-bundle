@@ -11,10 +11,14 @@
 
 namespace Yceruto\TaskRabbitMqBundle\Tests\DependencyInjection;
 
+use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\Yaml\Parser;
+use Yceruto\TaskRabbitMqBundle\Assigner\TaskAssigner;
 use Yceruto\TaskRabbitMqBundle\DependencyInjection\TaskRabbitMqExtension;
+use Yceruto\TaskRabbitMqBundle\Worker\WorkerContainer;
 
 class TaskRabbitMqExtensionTest extends TestCase
 {
@@ -54,7 +58,6 @@ class TaskRabbitMqExtensionTest extends TestCase
     {
         $this->createFullConfiguration();
 
-        $this->assertParameter(true, 'task_rabbit_mq.debug');
         $this->assertHasDefinition('task_rabbit_mq.data_collector');
     }
 
@@ -66,7 +69,6 @@ class TaskRabbitMqExtensionTest extends TestCase
         $config['debug'] = false;
         $loader->load(array($config), $this->container);
 
-        $this->assertParameter(false, 'task_rabbit_mq.debug');
         $this->assertNotHasDefinition('task_rabbit_mq.data_collector');
     }
 
@@ -89,28 +91,6 @@ class TaskRabbitMqExtensionTest extends TestCase
         $this->createFullConfiguration();
 
         $this->assertParameter('custom', 'task_rabbit_mq.model_manager_name');
-    }
-
-    public function testTaskLoadManagementWithDefaults()
-    {
-        $this->createEmptyConfiguration();
-
-        $definition = $this->container->getDefinition('task_rabbit_mq.management');
-        $this->assertSame('http://127.0.0.1:15672', $definition->getArgument(0));
-        $this->assertSame('guest', $definition->getArgument(1));
-        $this->assertSame('guest', $definition->getArgument(2));
-        $this->assertSame('/', $definition->getArgument(3));
-    }
-
-    public function testTaskLoadManagement()
-    {
-        $this->createFullConfiguration();
-
-        $definition = $this->container->getDefinition('task_rabbit_mq.management');
-        $this->assertSame('http://127.0.0.1:12372', $definition->getArgument(0));
-        $this->assertSame('symfony', $definition->getArgument(1));
-        $this->assertSame('p4ss', $definition->getArgument(2));
-        $this->assertSame('/dev', $definition->getArgument(3));
     }
 
     public function testTaskLoadServiceWithDefaults()
@@ -152,18 +132,26 @@ class TaskRabbitMqExtensionTest extends TestCase
     protected function createEmptyConfiguration()
     {
         $this->container = new ContainerBuilder();
-        $loader = new TaskRabbitMqExtension();
         $config = $this->getEmptyConfig();
+
+        $loader = new TaskRabbitMqExtension();
         $loader->load(array($config), $this->container);
+
         $this->assertTrue($this->container instanceof ContainerBuilder);
     }
 
     protected function createFullConfiguration()
     {
+        $workerContainer = $this->getMockBuilder(WorkerContainer::class)->getMock();
+        $producer = $this->getMockForAbstractClass(ProducerInterface::class);
+
         $this->container = new ContainerBuilder();
-        $loader = new TaskRabbitMqExtension();
+        $this->container->setDefinition('custom_task_assigner', new Definition(TaskAssigner::class, [$workerContainer, $producer, []]));
+
         $config = $this->getFullConfig();
+        $loader = new TaskRabbitMqExtension();
         $loader->load(array($config), $this->container);
+
         $this->assertTrue($this->container instanceof ContainerBuilder);
     }
 
@@ -194,11 +182,8 @@ producer: old_sound_rabbit_mq.task_producer
 debug: true
 doctrine:
     model_manager_name: custom
-management:
-    url: http://127.0.0.1:12372
-    user: symfony
-    password: p4ss
-    vhost: /dev
+rabbit_mq:
+    routing_keys: ['queue1', 'queue2', 'queue3']
 service:
     task_manager: custom_task_manager
     task_assigner: custom_task_assigner

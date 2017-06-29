@@ -14,7 +14,6 @@ namespace Yceruto\TaskRabbitMqBundle\Tests\Assigner;
 use OldSound\RabbitMqBundle\RabbitMq\ProducerInterface;
 use PHPUnit\Framework\TestCase;
 use Yceruto\TaskRabbitMqBundle\Assigner\TaskAssigner;
-use Yceruto\TaskRabbitMqBundle\RabbitMq\Management\Management;
 use Yceruto\TaskRabbitMqBundle\Tests\TestTask;
 use Yceruto\TaskRabbitMqBundle\Tests\TestWorker;
 use Yceruto\TaskRabbitMqBundle\Worker\WorkerAwareInterface;
@@ -26,18 +25,15 @@ class AssignerTest extends TestCase
     private $assigner;
     /** @var WorkerContainer|\PHPUnit_Framework_MockObject_MockObject */
     private $workerContainer;
-    /** @var Management|\PHPUnit_Framework_MockObject_MockObject */
-    private $management;
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var ProducerInterface|\PHPUnit_Framework_MockObject_MockObject */
     private $producer;
 
     public function setUp()
     {
         $this->workerContainer = $this->getMockBuilder(WorkerContainer::class)->getMock();
-        $this->management = $this->getMockBuilder(Management::class)->disableOriginalConstructor()->getMock();
         $this->producer = $this->getMockForAbstractClass(ProducerInterface::class);
 
-        $this->assigner = new TaskAssigner($this->workerContainer, $this->management, $this->producer);
+        $this->assigner = new TaskAssigner($this->workerContainer, $this->producer, ['routingKey1']);
     }
 
     /**
@@ -75,31 +71,6 @@ class AssignerTest extends TestCase
         $this->assigner->assign($task, 'unknown');
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage Queue not found. Make sure to configure at least one queue.
-     */
-    public function testQueueNotFoundException()
-    {
-        $this->workerContainer
-            ->expects($this->once())
-            ->method('has')
-            ->with($this->equalTo(TestWorker::class))
-            ->will($this->returnValue(true))
-        ;
-        $this->management
-            ->expects($this->once())
-            ->method('getShortestQueueName')
-            ->will($this->returnValue(false))
-        ;
-
-        $task = new TestTask();
-        $task->setId(1);
-        $task->addJobData(array('email' => 'john@gmail.com'));
-
-        $this->assigner->assign($task, TestWorker::class);
-    }
-
     public function testAssignNormal()
     {
         $this->workerContainer
@@ -108,15 +79,10 @@ class AssignerTest extends TestCase
             ->with($this->equalTo(TestWorker::class))
             ->will($this->returnValue(true))
         ;
-        $this->management
-            ->expects($this->once())
-            ->method('getShortestQueueName')
-            ->will($this->returnValue('tasks'))
-        ;
         $this->producer
             ->expects($this->exactly(2))
             ->method('publish')
-            ->withAnyParameters()
+            ->with($this->anything(), 'routingKey1')
         ;
 
         $task = new TestTask();
@@ -127,7 +93,7 @@ class AssignerTest extends TestCase
         $this->assigner->assign($task, TestWorker::class);
     }
 
-    public function testAssignCustomWorkerFromOneJob()
+    public function testAssignCustomJobWorker()
     {
         $this->workerContainer
             ->expects($this->exactly(2))
@@ -135,15 +101,10 @@ class AssignerTest extends TestCase
             ->withAnyParameters()
             ->will($this->returnValue(true))
         ;
-        $this->management
-            ->expects($this->once())
-            ->method('getShortestQueueName')
-            ->will($this->returnValue('tasks'))
-        ;
         $this->producer
             ->expects($this->exactly(2))
             ->method('publish')
-            ->withAnyParameters()
+            ->with($this->anything(), 'routingKey1')
         ;
 
         $task = new TestTask();
@@ -164,15 +125,10 @@ class AssignerTest extends TestCase
             ->with($this->equalTo($worker))
             ->will($this->returnValue(TestWorker::class))
         ;
-        $this->management
-            ->expects($this->once())
-            ->method('getShortestQueueName')
-            ->will($this->returnValue('tasks'))
-        ;
         $this->producer
             ->expects($this->once())
             ->method('publish')
-            ->withAnyParameters()
+            ->with($this->anything(), 'routingKey1')
         ;
 
         $task = new TestTask();
@@ -180,6 +136,30 @@ class AssignerTest extends TestCase
         $task->addJobData(array('email' => 'john@gmail.com'));
 
         $this->assigner->assign($task, $worker);
+    }
+
+    public function testGetRoutingKeys()
+    {
+        $this->workerContainer
+            ->expects($this->once())
+            ->method('has')
+            ->with($this->equalTo(TestWorker::class))
+            ->will($this->returnValue(true))
+        ;
+        $this->producer->expects($this->at(0))->method('publish')->with($this->anything(), 'routingKey1');
+        $this->producer->expects($this->at(1))->method('publish')->with($this->anything(), 'routingKey2');
+        $this->producer->expects($this->at(2))->method('publish')->with($this->anything(), 'routingKey3');
+        $this->producer->expects($this->at(3))->method('publish')->with($this->anything(), 'routingKey1');
+
+        $task = new TestTask();
+        $task->setId(1);
+        $task->addJobData(array('email' => 'john@gmail.com'));
+        $task->addJobData(array('email' => 'jane@gmail.com'));
+        $task->addJobData(array('email' => 'anna@gmail.com'));
+        $task->addJobData(array('email' => 'jose@gmail.com'));
+
+        $assigner = new TaskAssigner($this->workerContainer, $this->producer, ['routingKey1', 'routingKey2', 'routingKey3']);
+        $assigner->assign($task, TestWorker::class);
     }
 }
 
