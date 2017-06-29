@@ -39,26 +39,24 @@ class TaskConsumer implements ConsumerInterface
         $job = @unserialize($msg->body);
 
         if (!$job instanceof Job) {
-            $this->log('error', 'Unknown job message. Reject message.');
+            $this->log('error', 'Unknown job message: '.$msg->body);
 
             return ConsumerInterface::MSG_REJECT;
         }
 
         if (null === $task = $this->taskManager->findTaskById($job->getTaskId())) {
-            $this->log('alert', 'Reject and drop message because the task does not exists.');
+            $this->log('error', sprintf('The task (id: %s) does not exists. Reject and drop job.', $job->getTaskId()));
 
             return ConsumerInterface::MSG_REJECT;
         }
 
         if ($task->isStatusCancelled()) {
-            $this->log('alert', 'Reject and drop message because the task was cancelled.');
+            $this->log('info', 'The task was cancelled. Reject and drop job.');
 
             return ConsumerInterface::MSG_REJECT;
         }
 
         if ($task->isStatusPaused()) {
-            $this->log('debug', 'Reject and requeue message because the task was paused.');
-
             return false;
         }
 
@@ -67,7 +65,7 @@ class TaskConsumer implements ConsumerInterface
         if (false === $this->workerContainer->has($workerServiceId)) {
             $this->taskManager->cancelTask($task);
 
-            $this->log('error', sprintf('Reject and drop message because worker service "%s" not found.', $workerServiceId));
+            $this->log('error', sprintf('Worker service "%s" not found. Reject and drop job.', $workerServiceId));
 
             return ConsumerInterface::MSG_REJECT;
         }
@@ -82,7 +80,7 @@ class TaskConsumer implements ConsumerInterface
 
             $result = $worker->execute($job->getData());
         } catch (\Exception $e) {
-            $this->log('critical', $e->getMessage(), array('trace' => $e->getTrace()));
+            $this->log('error', $e->getMessage(), array('trace' => $e->getTrace()));
 
             $result = ConsumerInterface::MSG_REJECT;
             $this->taskManager->cancelTask($task);
