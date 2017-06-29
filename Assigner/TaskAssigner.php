@@ -62,16 +62,16 @@ class TaskAssigner
 
         $i = 0;
         foreach ($task->getJobsData() as $data) {
-            // gets the worker that process this job
-            $workerServiceId = $data instanceof WorkerAwareInterface && $this->workerContainer->has($data->getWorkerServiceId())
-                ? $data->getWorkerServiceId()
-                : $defaultWorkerServiceId;
-
             $job = new Job();
             $job->setNumber(++$i);
             $job->setTaskId($task->getId());
-            $job->setWorkerServiceId($workerServiceId);
             $job->setData($data);
+
+            if ($data instanceof WorkerAwareInterface && $this->workerContainer->has($data->getWorkerServiceId())) {
+                $job->setWorkerServiceId($data->getWorkerServiceId());
+            } else {
+                $job->setWorkerServiceId($defaultWorkerServiceId);
+            }
 
             // In this case the routing_key === queue name (by configuration)
             $this->producer->publish(serialize($job), $queue);
