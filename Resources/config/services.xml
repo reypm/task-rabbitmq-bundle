@@ -24,6 +24,11 @@
             <argument type="string">%task_rabbit_mq.task_class%</argument>
         </service>
 
+        <service id="task_rabbit_mq.listener.clear_entity_manager" class="Yceruto\TaskRabbitMqBundle\EventListener\Doctrine\ClearEntityManagerListener" public="false">
+            <tag name="kernel.event_subscriber" />
+            <argument type="service" id="task_rabbit_mq.object_manager" />
+        </service>
+
         <service id="task_rabbit_mq.assigner.default" class="Yceruto\TaskRabbitMqBundle\Assigner\TaskAssigner" public="false" lazy="true">
             <argument type="service" id="task_rabbit_mq.worker_container" />
             <argument type="service" id="task_rabbit_mq.management" />
