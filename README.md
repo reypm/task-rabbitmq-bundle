@@ -29,7 +29,7 @@ public function registerBundles()
 task_rabbit_mq:
     task_class: AppBundle\Entity\Task
     rabbit_mq:
-        url: 'amqp://symfony:rabbit@127.0.0.1:5672/demo?lazy=1'
+        url: 'amqp://symfony:rabbit@127.0.0.1:5672/%2fdemo?lazy=1'
 ```
 
 ```php
