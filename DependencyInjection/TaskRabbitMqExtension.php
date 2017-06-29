@@ -13,6 +13,7 @@ namespace Yceruto\TaskRabbitMqBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Exception\LogicException;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
@@ -62,31 +63,40 @@ class TaskRabbitMqExtension extends Extension implements PrependExtensionInterfa
      */
     public function prepend(ContainerBuilder $container)
     {
-        if ($container->hasExtension('old_sound_rabbit_mq')) {
-            // old_sound_rabbit_mq
-            $oldSoundConfig = $container->getExtensionConfig('old_sound_rabbit_mq');
-            $oldSoundConfig = current($oldSoundConfig);
+        $bundles = $container->getParameter('kernel.bundles');
 
+        if (!isset($bundles['OldSoundRabbitMqBundle'])) {
+            throw new LogicException('Missing OldSoundRabbitMqBundle instantiation into kernel.');
+        }
+
+        $config = $container->getExtensionConfig('task_rabbit_mq');
+        $config = current($config);
+
+        $oldSoundConfig = $container->getExtensionConfig('old_sound_rabbit_mq');
+        $oldSoundConfig = current($oldSoundConfig);
+
+        if (!isset($oldSoundConfig['connections']) && isset($config['rabbit_mq']['url'])) {
+            $oldSoundConfig['connections']['default']['url'] = $config['rabbit_mq']['url'];
+            $oldSoundConfig['connections']['default']['lazy'] = true;
+            $container->prependExtensionConfig('old_sound_rabbit_mq', $oldSoundConfig);
+        }
+
+        if (!isset($config['rabbit_mq']['producer'])) {
             $oldSoundConfig['producers']['tasks']['exchange_options']['name'] = 'tasks';
             $oldSoundConfig['producers']['tasks']['exchange_options']['type'] = 'direct';
+            $container->prependExtensionConfig('old_sound_rabbit_mq', $oldSoundConfig);
+
+            $config['rabbit_mq']['producer'] = 'old_sound_rabbit_mq.tasks_producer';
+            $container->prependExtensionConfig('task_rabbit_mq', $config);
+        }
+
+        if (!isset($oldSoundConfig['consumers'])) {
             $oldSoundConfig['consumers']['tasks']['exchange_options']['name'] = 'tasks';
             $oldSoundConfig['consumers']['tasks']['exchange_options']['type'] = 'direct';
             $oldSoundConfig['consumers']['tasks']['queue_options']['name'] = 'tasks';
+            $oldSoundConfig['consumers']['tasks']['queue_options']['routing_keys'] = ['tasks'];
             $oldSoundConfig['consumers']['tasks']['callback'] = 'task_rabbit_mq.consumer';
             $container->prependExtensionConfig('old_sound_rabbit_mq', $oldSoundConfig);
-
-            // task_rabbit_mq
-            $config['producer'] = 'old_sound_rabbit_mq.tasks_producer';
-            if ($oldSoundConfig['connections']['default']['user']) {
-                $config['management']['user'] = $oldSoundConfig['connections']['default']['user'];
-            }
-            if ($oldSoundConfig['connections']['default']['password']) {
-                $config['management']['password'] = $oldSoundConfig['connections']['default']['password'];
-            }
-            if ($oldSoundConfig['connections']['default']['vhost']) {
-                $config['management']['vhost'] = $oldSoundConfig['connections']['default']['vhost'];
-            }
-            $container->prependExtensionConfig('task_rabbit_mq', $config);
         }
     }
 }

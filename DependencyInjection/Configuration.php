@@ -40,28 +40,12 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        $this->addDoctrineSection($rootNode);
         $this->addRabbitMqSection($rootNode);
+        $this->addDoctrineSection($rootNode);
         $this->addServiceSection($rootNode);
         $this->addLoadBalancerSection($rootNode);
 
         return $tree;
-    }
-
-    private function addDoctrineSection(ArrayNodeDefinition $node)
-    {
-        $node
-            ->addDefaultsIfNotSet()
-            ->children()
-                ->arrayNode('doctrine')
-                    ->addDefaultsIfNotSet()
-                        ->children()
-                            ->scalarNode('model_manager_name')->defaultNull()->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-        ;
     }
 
     private function addRabbitMqSection(ArrayNodeDefinition $node)
@@ -77,6 +61,23 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('routing_keys')
                             ->beforeNormalization()->ifString()->then(function ($v) { return array($v); })->end()
                             ->prototype('scalar')->end()
+                            ->defaultValue(array())
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    private function addDoctrineSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->addDefaultsIfNotSet()
+            ->children()
+                ->arrayNode('doctrine')
+                    ->addDefaultsIfNotSet()
+                        ->children()
+                            ->scalarNode('model_manager_name')->defaultNull()->end()
                         ->end()
                     ->end()
                 ->end()
