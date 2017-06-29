@@ -87,6 +87,7 @@ class TaskRabbitMqExtension extends Extension implements PrependExtensionInterfa
             $container->prependExtensionConfig('old_sound_rabbit_mq', $oldSoundConfig);
 
             $config['rabbit_mq']['producer'] = 'old_sound_rabbit_mq.tasks_producer';
+            $config['rabbit_mq']['routing_keys'] = array('tasks');
             $container->prependExtensionConfig('task_rabbit_mq', $config);
         }
 
