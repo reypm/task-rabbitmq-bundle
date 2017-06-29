@@ -1,16 +1,10 @@
 ## Configuration
 
 ```yaml
-old_sound_rabbit_mq:
-    connections:
-        default:
-            url: '%env(RABBITMQ_URL)%'
-            lazy: true
-```
-
-```yaml
 task_rabbit_mq:
     task_class: AppBundle\Entity\Task
+    rabbit_mq:
+        url: 'amqp://symfony:rabbit@127.0.0.1:5672/demo?lazy=1'
 ```
 
 ```php
