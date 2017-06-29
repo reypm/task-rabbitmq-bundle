@@ -7,7 +7,7 @@
 Require the bundle and its dependencies with composer:
 
 ```bash
-$ composer require yceruto/task-rabbitmq-bundle
+$ composer require yceruto/task-rabbitmq-bundle:dev-master
 ```
 
 Register the bundle:
@@ -18,7 +18,7 @@ Register the bundle:
 public function registerBundles()
 {
     $bundles = array(
-        new TaskRabbitMqBundle\TaskRabbitMqBundle(),
+        new Yceruto\TaskRabbitMqBundle\TaskRabbitMqBundle(),
     );
 }
 ```
