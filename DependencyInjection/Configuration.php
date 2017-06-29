@@ -36,7 +36,6 @@ class Configuration implements ConfigurationInterface
         $rootNode
             ->children()
                 ->scalarNode('task_class')->isRequired()->cannotBeEmpty()->end()
-                ->scalarNode('producer')->isRequired()->cannotBeEmpty()->end()
                 ->booleanNode('debug')->defaultValue('%kernel.debug%')->end()
             ->end()
         ;
@@ -74,6 +73,7 @@ class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->scalarNode('url')->defaultValue('')->end()
+                        ->scalarNode('producer')->isRequired()->cannotBeEmpty()->end()
                         ->arrayNode('routing_keys')
                             ->beforeNormalization()->ifString()->then(function ($v) { return array($v); })->end()
                             ->prototype('scalar')->end()

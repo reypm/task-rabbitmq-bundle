@@ -43,7 +43,7 @@ class TaskRabbitMqExtensionTest extends TestCase
     {
         $loader = new TaskRabbitMqExtension();
         $config = $this->getEmptyConfig();
-        unset($config['producer']);
+        unset($config['rabbit_mq']['producer']);
         $loader->load(array($config), new ContainerBuilder());
     }
 
@@ -164,7 +164,8 @@ class TaskRabbitMqExtensionTest extends TestCase
     {
         $yaml = <<<EOF
 task_class: AppBundle\Entity\Task
-producer: old_sound_rabbit_mq.task_producer
+rabbit_mq:
+    producer: old_sound_rabbit_mq.task_producer
 EOF;
         $parser = new Parser();
 
@@ -178,11 +179,11 @@ EOF;
     {
         $yaml = <<<EOF
 task_class: AppBundle\Entity\Task
-producer: old_sound_rabbit_mq.task_producer
 debug: true
 doctrine:
     model_manager_name: custom
 rabbit_mq:
+    producer: old_sound_rabbit_mq.task_producer
     routing_keys: ['queue1', 'queue2', 'queue3']
 service:
     task_manager: custom_task_manager

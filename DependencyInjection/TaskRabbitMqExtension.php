@@ -36,7 +36,6 @@ class TaskRabbitMqExtension extends Extension implements PrependExtensionInterfa
 
         // Load Main Configuration
         $container->setParameter('task_rabbit_mq.task_class', $config['task_class']);
-        $container->setAlias('task_rabbit_mq.producer', $config['producer']);
 
         // Load Doctrine configuration
         $container->setParameter('task_rabbit_mq.model_manager_name', $config['doctrine']['model_manager_name']);
@@ -47,6 +46,8 @@ class TaskRabbitMqExtension extends Extension implements PrependExtensionInterfa
         $container->setAlias('task_rabbit_mq.consumer', $config['service']['task_consumer']);
 
         // Load RabbitMq configuration
+        $container->setAlias('task_rabbit_mq.producer', $config['rabbit_mq']['producer']);
+
         $definition = $container->findDefinition('task_rabbit_mq.assigner');
         $definition->replaceArgument(2, $config['rabbit_mq']['routing_keys']);
 
