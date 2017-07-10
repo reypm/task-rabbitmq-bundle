@@ -1,5 +1,7 @@
 # TaskRabbitMqBundle #
 
+Waiting for https://github.com/symfony/symfony/pull/23315 to implement new approach with built-in Amqp & Worker components.
+
 ## Installation ##
 
 ### For Symfony Framework >= 3.0 ###
